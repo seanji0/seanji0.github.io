@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dolly | Live demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9; --surface:#fdfdfc; --surface2:#e8edf4; --ink:#14233a; --muted:#55657a; --line:#d9e0ea;
+  --brand:#0a2a52; --brand-ink:#f4f6f9; --accent:#f58025; --accent-ink:#a64d08; --link:#1659a6;
+  --ok:#1c7c54; --okbg:#e2f3ea; --warn:#9a4a07; --warnbg:#fdeede; --bad:#b3261e; --badbg:#fbe5e3;
+  --bubble-user:#1659a6; --bubble-user-ink:#fdfdfc; --phone:#14233a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1a2d; --surface:#13253f; --surface2:#1b3250; --ink:#e8eef6; --muted:#a3b3c8; --line:#27405f;
+    --brand:#08213f; --brand-ink:#f4f6f9; --accent:#f58025; --accent-ink:#f58025; --link:#7fb0e6;
+    --ok:#5fcf9a; --okbg:#143a2c; --warn:#f0a35e; --warnbg:#3a2a16; --bad:#ff8a80; --badbg:#3d1f1d;
+    --bubble-user:#1f5fa8; --bubble-user-ink:#f4f6f9; --phone:#050d18;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1a2d; --surface:#13253f; --surface2:#1b3250; --ink:#e8eef6; --muted:#a3b3c8; --line:#27405f;
+  --brand:#08213f; --brand-ink:#f4f6f9; --accent:#f58025; --accent-ink:#f58025; --link:#7fb0e6;
+  --ok:#5fcf9a; --okbg:#143a2c; --warn:#f0a35e; --warnbg:#3a2a16; --bad:#ff8a80; --badbg:#3d1f1d;
+  --bubble-user:#1f5fa8; --bubble-user-ink:#f4f6f9; --phone:#050d18;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--brand)}
+h1,h2,h3,p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:29;background:var(--brand);color:var(--brand-ink);border-bottom:4px solid var(--accent)}
+.top .in{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.top h1{font-size:26px;font-weight:800;letter-spacing:-.01em}
+.top .sub{font-size:14px;color:#b8c6d9;flex:1;min-width:200px}
+.wrap{max-width:1280px;margin:0 auto;padding:16px}
+
+.btn{border:2px solid transparent;border-radius:999px;padding:8px 16px;font-weight:600;font-size:15px;line-height:1.2;background:var(--surface2);color:var(--ink)}
+.btn.primary{background:var(--accent);color:#0a2a52}
+.btn.ghost{background:transparent;border-color:var(--link);color:var(--link)}
+.btn.light{background:transparent;border-color:#b8c6d9;color:#f4f6f9}
+.btn.on{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.btn[disabled]{opacity:.55;cursor:default}
+.btn.sm{padding:6px 12px;font-size:14px}
+
+.tour{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-left:8px solid var(--accent);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.tour .cap{flex:1;min-width:240px}
+.tour .cap b{display:block;font-size:14px;color:var(--accent-ink);margin-bottom:2px}
+.tour .cap span{font-size:17px;line-height:1.4}
+
+.stage{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:980px){.stage{grid-template-columns:1fr}}
+
+.phone{background:var(--phone);border-radius:40px;padding:12px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px)}
+@media (max-width:980px){.phone{position:static}}
+.screen{background:var(--surface);border-radius:30px;display:flex;flex-direction:column;height:690px}
+.phead{background:var(--brand);color:#f4f6f9;border-radius:30px 30px 0 0;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.phead strong{font-size:20px;font-weight:800;display:block;line-height:1.1}
+.phead small{font-size:13px;color:#b8c6d9}
+.phead .btn{border-color:var(--accent);background:transparent;color:#f4f6f9;padding:6px 12px;font-size:14px}
+.msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;flex-direction:column;gap:6px}
+.row.u{align-items:flex-end}.row.d{align-items:flex-start}
+.b{padding:10px 14px;border-radius:18px;max-width:88%;font-size:15px;line-height:1.4}
+.b.u{background:var(--bubble-user);color:var(--bubble-user-ink);border-bottom-right-radius:6px}
+.b.d{background:var(--surface2);border-bottom-left-radius:6px}
+.src{font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.sys{align-self:center;font-size:13px;color:var(--muted);background:var(--surface2);border-radius:999px;padding:4px 12px;text-align:center}
+.ask{border-top:1px solid var(--line);padding:10px 12px}
+.ask p{font-size:13px;color:var(--muted);margin-bottom:6px}
+.chips{display:flex;flex-direction:column;gap:6px}
+.chip{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:8px 12px;font-size:14px;line-height:1.3}
+.chip:hover{border-color:var(--link)}
+.composer{margin:0 12px 12px;background:var(--surface2);color:var(--muted);border-radius:999px;padding:9px 16px;font-size:14px}
+
+.tabs{display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:14px;padding-bottom:0}
+.tab{border:0;background:transparent;padding:10px 14px;font-weight:600;font-size:15px;color:var(--muted);border-bottom:4px solid transparent;white-space:nowrap;position:relative}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .dot{position:absolute;top:8px;right:4px;width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.panel{display:flex;flex-direction:column;gap:14px}
+.panel[hidden]{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.lead{font-size:15px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted)}
+.empty{color:var(--muted);padding:20px;text-align:center;border:1px dashed var(--line);border-radius:14px}
+.sel{display:flex;gap:6px;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:10px 14px}
+@media (max-width:560px){.kv{grid-template-columns:1fr}}
+.kv dt{font-size:13px;color:var(--muted);font-weight:600}
+.kv dd{margin:0}
+.pillx{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700}
+.pillx.ok{background:var(--okbg);color:var(--ok)}
+.pillx.flag{background:var(--warnbg);color:var(--warn)}
+.pillx.na{background:var(--surface2);color:var(--muted)}
+.chk{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.chk:last-child{border-bottom:0}
+.log{font-size:14px;display:grid;grid-template-columns:70px 1fr;gap:4px 10px}
+.log .t{color:var(--muted);font-variant-numeric:tabular-nums}
+.log .flag{color:var(--warn);font-weight:600}
+.log .pass{color:var(--ok)}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(120px,210px) 1fr 44px;gap:10px;align-items:center;font-size:14px}
+.bar .track{height:12px;background:var(--surface2);border-radius:8px;overflow:hidden}
+.bar .fill{height:100%;background:var(--link);border-radius:8px}
+.bar .fill.o{background:var(--accent)}
+.bar .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.conv{font-size:12px;color:var(--muted)}
+.ctl{display:grid;grid-template-columns:1fr;gap:2px;margin-bottom:12px}
+.ctl label{display:flex;justify-content:space-between;font-size:14px;font-weight:600}
+.ctl input[type=range]{width:100%;accent-color:var(--accent)}
+.tblw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface2);font-weight:700}
+td.num{font-variant-numeric:tabular-nums}
+.good{color:var(--ok);font-weight:700}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.node{background:var(--surface2);border-radius:12px;padding:10px 12px;font-size:14px}
+.node b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.node.hot{background:var(--okbg)}
+.back{margin-top:10px;font-size:14px;color:var(--accent-ink);font-weight:700}
+.foot{font-size:13px;color:var(--muted);padding:6px 16px 28px;max-width:1280px;margin:0 auto}
+a{color:var(--link)}
+@media (prefers-reduced-motion:no-preference){.b,.sys{animation:in .18s ease-out}}
+@keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <h1>Dolly</h1>
+  <p class="sub">Live demo. All numbers are illustrative demo data, not PNC data.</p>
+  <a class="btn light sm" href="../" style="text-decoration:none">Back to portfolio</a>
+  <button class="btn light sm" data-act="reset">Reset demo</button>
+</div></header>
+
+<main class="wrap">
+  <div class="tour" id="tour"></div>
+  <div class="stage">
+    <section class="phone" aria-label="Customer view in the app">
+      <div class="screen">
+        <div class="phead"><div><strong>Dolly</strong><small>AI assistant</small></div><button class="btn" data-act="person">Talk to a person</button></div>
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <div class="ask"><p>Ask Dolly about:</p><div class="chips" id="chips"></div></div>
+        <div class="composer" aria-hidden="true">Ask Dolly anything</div>
+      </div>
+    </section>
+    <section aria-label="What the bank sees">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div id="p-banker" class="panel" role="tabpanel"></div>
+      <div id="p-risk" class="panel" role="tabpanel"></div>
+      <div id="p-analytics" class="panel" role="tabpanel"></div>
+      <div id="p-po" class="panel" role="tabpanel"></div>
+      <div id="p-loop" class="panel" role="tabpanel"></div>
+      <div id="p-pilot" class="panel" role="tabpanel"></div>
+    </section>
+  </div>
+</main>
+<p class="foot">Illustrative mock-up by Sean Ji, not PNC’s actual interface and not affiliated with PNC. Rates, balances and counts are placeholders. Not legal advice; confirm regulatory points with counsel.</p>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+var SC={
+  rate:{label:'Why is another bank’s savings rate higher?',theme:'Rate comparison',tier:'Answers, then offers a banker',canOffer:true,flags:[]},
+  dd:{label:'How do I move my direct deposit to PNC?',theme:'Direct deposit switch',tier:'Answers, then offers a banker',canOffer:true,flags:[]},
+  dispute:{label:'There’s a charge on my account I don’t recognize.',theme:'Dispute or fraud',tier:'Hands off immediately',canOffer:false,handoff:true,flags:['Reg E trigger: dispute routed to a person']},
+  hard:{label:'I’m behind on bills and worried about overdraft fees.',theme:'Hardship signal',tier:'Hands off immediately',canOffer:false,flags:['Hardship signal: sales offers suppressed']},
+  person:{label:'Talk to a person',theme:'Asked for a person',tier:'Hands off immediately',canOffer:false,handoff:true,flags:[]}
+};
+var SLOTS=['Thu 10:30 at the Downtown Denver branch','Sat 11:00 at the Lakewood branch'];
+var BASE={themes:{rate:62,dd:41,fees:33,disputes:18,hardship:9,other:27},funnel:{convos:190,banker:48,appts:31,visits:22,switched:15},offered:40,accepted:6};
+var THEME_KEY={rate:'rate',dd:'dd',dispute:'disputes',hard:'hardship',person:'other'};
+var THEME_LABEL={rate:'Rate comparison',dd:'Direct deposit switch',fees:'Fees and overdraft',disputes:'Dispute or fraud',hardship:'Hardship signal',other:'Other, including asked for a person'};
+var FIX={N:50000,bal:10000,comp:4.40,k:0.12,nib:3000};
+var TABS=[['banker','Banker brief'],['risk','Risk and compliance'],['analytics','Analytics'],['po','Product Owner'],['loop','The loop'],['pilot','Pilot market']];
+
+var S;
+function fresh(){return {catalog:{apy:3.80,ver:14},msgs:[],convos:[],clock:38462,audit:[],tab:'banker',dirty:{},sel:null,model:{apy:4.10,eng:40,acc:15,bonus:200},tour:0,pub:''};}
+function tick(){S.clock+=9;var s=S.clock,h=Math.floor(s/3600),m=Math.floor((s%3600)/60),x=s%60;return (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
+function log(cid,text,kind){S.audit.unshift({t:tick(),cid:cid,text:text,kind:kind||'info'});touch('risk');}
+function touch(){for(var i=0;i<arguments.length;i++){if(S.tab!==arguments[i])S.dirty[arguments[i]]=true;}}
+function getC(id){for(var i=0;i<S.convos.length;i++){if(S.convos[i].id===id)return S.convos[i];}return null;}
+function selC(){if(!S.convos.length)return null;return getC(S.sel)||S.convos[S.convos.length-1];}
+
+function newConvo(key){
+  var sc=SC[key];
+  var c={id:S.convos.length+1,key:key,asked:sc.label,theme:sc.theme,tier:sc.tier,canOffer:sc.canOffer,handoff:!!sc.handoff,consent:null,appt:null,dd:false,
+    out:{visited:false,switched:false,accepted:false,declined:false},apy:S.catalog.apy,ver:S.catalog.ver,flags:sc.flags.slice()};
+  S.convos.push(c);S.sel=c.id;
+  S.msgs.push({who:'user',text:sc.label});
+  log(c.id,'Question received: '+sc.theme,'info');
+  touch('banker','analytics','po','loop');
+  return c;
+}
+
+function ask(key){
+  var c=newConvo(key),cid=c.id;
+  if(key==='rate'){
+    S.msgs.push({who:'dolly',cid:cid,text:'Savings rates differ by account type and balance. Your High Yield Savings account earns '+S.catalog.apy.toFixed(2)+'% APY. The rate is variable, so it may change after the account is opened. Accurate as of Oct 20, 2026. No minimum balance is needed to earn this APY. Other banks may advertise higher rates with different terms.',src:'Source: HYSA rate sheet v'+S.catalog.ver});
+    log(cid,'Answer drawn from approved rate sheet v'+S.catalog.ver+'; Reg DD elements present','pass');
+    S.msgs.push({who:'dolly',cid:cid,text:'Want a PNC banker to review options with you? They’ll see this chat.',actions:[{k:'yes',label:'Yes, please',primary:true},{k:'no',label:'Not now'}]});
+  }else if(key==='dd'){
+    S.msgs.push({who:'dolly',cid:cid,text:'You can start a direct deposit switch right in the app. It takes a few minutes. Want me to open it?',src:'Source: Direct deposit switch help page',actions:[{k:'open',label:'Open the switch',primary:true},{k:'no',label:'Not now'}]});
+    log(cid,'Answer drawn from approved help content','pass');
+  }else if(key==='dispute'){
+    S.msgs.push({who:'dolly',cid:cid,text:'I’m sorry about that. A charge you don’t recognize needs a person on our fraud and disputes team, so I’m connecting you now. Please don’t share full card numbers here.'});
+    S.msgs.push({who:'sys',cid:cid,text:'Connected to the disputes team'});
+    log(cid,'Reg E trigger: dispute routed to a person. No offers shown.','flag');
+  }else if(key==='hard'){
+    S.msgs.push({who:'dolly',cid:cid,text:'That sounds stressful, and you’re not alone. I can connect you with a banker to look at options together. Would you like that?',actions:[{k:'yes',label:'Yes, connect me',primary:true},{k:'no',label:'Not now'}]});
+    log(cid,'Hardship signal detected. Sales offers suppressed.','flag');
+  }
+}
+function person(){
+  var c=newConvo('person');
+  S.msgs.push({who:'sys',cid:c.id,text:'Connecting you to a person'});
+  log(c.id,'Customer asked for a person: handed off immediately','info');
+}
+function consent(cid,yes){
+  var c=getC(cid);if(!c)return;
+  c.consent=yes?'yes':'no';
+  log(cid,yes?'Consent logged: banker may follow up':'Consent declined: chat not shared with a banker','info');
+  if(yes){
+    log(cid,'Brief created for banker'+(c.canOffer?' with approved offers':' without offers'),'pass');
+    S.msgs.push({who:'dolly',cid:cid,text:'Done. I’ve shared this chat with a banker. Would you like to meet at a branch?',actions:[{k:'slot0',label:SLOTS[0]},{k:'slot1',label:SLOTS[1]},{k:'later',label:'I’ll wait for a call'}]});
+  }else{
+    S.msgs.push({who:'dolly',cid:cid,text:'No problem. I won’t share this chat with a banker. You can ask me anything else, or tap Talk to a person at any time.'});
+  }
+  touch('banker','analytics','risk','po','loop');
+}
+function book(cid,k){
+  var c=getC(cid);if(!c)return;
+  if(k==='later'){c.appt='call';S.msgs.push({who:'dolly',cid:cid,text:'Okay. A banker will call you.'});log(cid,'Customer chose a call back','info');}
+  else{var i=k==='slot0'?0:1;c.appt=SLOTS[i];S.msgs.push({who:'dolly',cid:cid,text:'You’re booked for '+SLOTS[i]+'. Your banker will have this chat.'});log(cid,'Branch appointment booked: '+SLOTS[i],'pass');}
+  touch('banker','analytics','po','loop');
+}
+function openSwitch(cid){
+  var c=getC(cid);if(!c)return;c.dd=true;
+  S.msgs.push({who:'sys',cid:cid,text:'Opens the in-app direct deposit switch'});
+  log(cid,'Direct deposit switch started in the app','pass');
+  S.msgs.push({who:'dolly',cid:cid,text:'Want a banker to check in once you finish?',actions:[{k:'yes',label:'Yes, please',primary:true},{k:'no',label:'No thanks'}]});
+  touch('analytics','loop');
+}
+var LBL={yes:'Yes, please',no:'Not now',open:'Open the switch',slot0:SLOTS[0],slot1:SLOTS[1],later:'I’ll wait for a call'};
+function choose(mi,k){
+  var m=S.msgs[mi];if(!m||m.chosen)return;
+  m.chosen=k;
+  var a=m.actions.filter(function(x){return x.k===k})[0];
+  S.msgs.push({who:'user',text:a?a.label:LBL[k]});
+  if(k==='yes')consent(m.cid,true);
+  else if(k==='no')consent(m.cid,false);
+  else if(k==='open')openSwitch(m.cid);
+  else book(m.cid,k);
+}
+function chooseLast(k){
+  for(var i=S.msgs.length-1;i>=0;i--){if(S.msgs[i].actions&&!S.msgs[i].chosen){choose(i,k);return;}}
+}
+var OUTL={visited:'visited the branch',switched:'direct deposit switched',accepted:'bonus accepted',declined:'bonus declined'};
+function outcome(cid,k){
+  var c=getC(cid);if(!c)return;
+  if(k==='visited'&&(!c.appt||c.appt==='call'))return;
+  if(k==='accepted'){c.out.accepted=true;c.out.declined=false;}
+  else if(k==='declined'){c.out.declined=true;c.out.accepted=false;}
+  else c.out[k]=true;
+  log(cid,'Banker recorded: '+OUTL[k],'info');
+  touch('analytics','po','loop','risk');
+}
+
+function stats(){
+  var cs=S.convos,themes={},k;
+  for(k in BASE.themes)themes[k]=BASE.themes[k];
+  cs.forEach(function(c){themes[THEME_KEY[c.key]]++;});
+  var n=function(f){return cs.filter(f).length;};
+  return {
+    themes:themes,
+    funnel:{convos:BASE.funnel.convos+cs.length,banker:BASE.funnel.banker+n(function(c){return c.consent==='yes'}),appts:BASE.funnel.appts+n(function(c){return c.appt&&c.appt!=='call'}),visits:BASE.funnel.visits+n(function(c){return c.out.visited}),switched:BASE.funnel.switched+n(function(c){return c.out.switched})},
+    offered:BASE.offered+n(function(c){return c.consent==='yes'&&c.canOffer}),
+    accepted:BASE.accepted+n(function(c){return c.out.accepted}),
+    started:n(function(c){return c.dd}),
+    rateQs:n(function(c){return c.key==='rate'})
+  };
+}
+
+function model(){
+  var cur=S.catalog.apy,m=S.model,N=FIX.N,B0=FIX.N*FIX.bal;
+  var risk=function(a){return Math.min(0.5,Math.max(0,FIX.comp-a)*FIX.k);};
+  var e=m.eng/100,ac=m.acc/100;
+  var L0=B0*risk(cur),cust0=N*risk(cur);
+  var A_L1=B0*risk(m.apy),A_kept=L0-A_L1,A_cost=(B0-A_L1)*(m.apy-cur)/100;
+  var B_acc=cust0*e*ac,B_kept=L0*e*ac,B_cost=B_acc*m.bonus,B_nib=B_acc*FIX.nib;
+  var C_cust=N*risk(m.apy),C_acc=C_cust*e*ac,C_kept=(L0-A_L1)+A_L1*e*ac,C_cost=A_cost+C_acc*m.bonus,C_nib=C_acc*FIX.nib;
+  return {B0:B0,L0:L0,A:{kept:A_kept,cost:A_cost,nib:0},B:{kept:B_kept,cost:B_cost,nib:B_nib},C:{kept:C_kept,cost:C_cost,nib:C_nib}};
+}
+
+var fm=function(n){return '$'+(n/1e6).toFixed(2)+'M';};
+var fpp=function(c,k){return k>0.0001?'$'+(c/k).toFixed(2):'n/a';};
+
+/* ---------- rendering ---------- */
+function renderPhone(){
+  var el=$('#msgs');
+  el.innerHTML=S.msgs.map(function(m,i){
+    if(m.who==='sys')return '<div class="sys">'+m.text+'</div>';
+    var cls=m.who==='user'?'u':'d';
+    var h='<div class="b '+cls+'">'+m.text+'</div>';
+    if(m.src)h+='<div class="src">'+m.src+'</div>';
+    if(m.actions)h+='<div class="acts">'+m.actions.map(function(a){return '<button class="btn '+(a.primary?'primary':'ghost')+(m.chosen===a.k?' on':'')+' sm" data-act="'+a.k+'" data-m="'+i+'"'+(m.chosen?' disabled':'')+'>'+a.label+'</button>';}).join('')+'</div>';
+    return '<div class="row '+cls+'">'+h+'</div>';
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function renderChips(){
+  $('#chips').innerHTML=['rate','dd','dispute','hard'].map(function(k){return '<button class="chip" data-act="ask" data-key="'+k+'">'+SC[k].label+'</button>';}).join('');
+}
+function selector(){
+  if(S.convos.length<2)return '';
+  var cur=selC();
+  return '<div class="sel">'+S.convos.map(function(c){return '<button class="btn sm '+(c.id===cur.id?'primary':'ghost')+'" data-act="sel" data-id="'+c.id+'">Chat '+c.id+': '+c.theme+'</button>';}).join('')+'</div>';
+}
+function answered(c){
+  if(c.key==='rate')return 'Rate sheet v'+c.ver+': '+c.apy.toFixed(2)+'% APY, variable, accurate as of Oct 20, 2026, no minimum balance, with source shown';
+  if(c.key==='dd')return 'Explained the in-app direct deposit switch'+(c.dd?' and opened it for the customer':'');
+  if(c.key==='dispute')return 'Handed off to the disputes team';
+  if(c.key==='hard')return 'Offered a supportive banker conversation';
+  return 'Handed off to a person';
+}
+function renderBanker(){
+  var c=selC(),h='';
+  if(!c){$('#p-banker').innerHTML='<div class="empty">Ask Dolly a question on the left. The banker’s brief appears here.</div>';return;}
+  h+=selector();
+  if(c.handoff){
+    h+='<div class="card"><h3>No sales brief</h3><p class="lead">'+(c.key==='dispute'?'This chat went straight to the disputes team. Dolly shows no offers and creates no sales brief.':'The customer asked for a person. Dolly handed off immediately and shows no offers.')+'</p></div>';
+  }else if(c.consent!=='yes'){
+    h+='<div class="card"><h3>'+(c.consent==='no'?'No brief: customer said not now':'Waiting for the customer’s answer')+'</h3><p class="lead">'+(c.consent==='no'?'Nothing is shared with a banker. Only anonymous theme counts are kept for analytics.':'Dolly asks before sharing anything. Answer in the chat to continue.')+'</p></div>';
+  }else{
+    var off=c.canOffer?('Relationship bonus: $'+S.model.bonus+' for a direct deposit switch, from the approved offer catalog'):'None. Hardship signal: no product offers. Listen first and review fee-free options.';
+    var step=c.appt&&c.appt!=='call'?'Meet at '+c.appt:'Call the customer';
+    var ob=function(k,label,dis){var done=c.out[k];return '<button class="btn sm '+(done?'on':'ghost')+'" data-act="out" data-k="'+k+'" data-id="'+c.id+'"'+((done||dis)?' disabled':'')+'>'+(done?'✓ ':'')+label+'</button>';};
+    h+='<div class="card"><h3>Customer brief</h3><dl class="kv">'+
+      '<dt>Customer asked</dt><dd>'+c.asked+'</dd>'+
+      '<dt>Dolly answered</dt><dd>'+answered(c)+'</dd>'+
+      '<dt>Context</dt><dd>[Balance] · [Products held] · Converted from FirstBank</dd>'+
+      '<dt>Approved offers</dt><dd>'+off+'</dd>'+
+      '<dt>Flags</dt><dd>'+(c.flags.length?c.flags.join('; '):'None detected')+'</dd>'+
+      '<dt>Consent</dt><dd>Yes, logged. The customer chose to share this chat.</dd>'+
+      '<dt>Next step</dt><dd>'+step+'</dd></dl></div>'+
+      '<div class="card"><h3>After the conversation</h3><p class="lead" style="margin-bottom:10px">The banker records what happened. These feed analytics and the Product Owner’s numbers.</p><div class="sel">'+
+      ob('visited','Customer visited the branch',!(c.appt&&c.appt!=='call'))+ob('switched','Direct deposit switched',false)+
+      (c.canOffer?ob('accepted','Bonus accepted',false)+ob('declined','Bonus declined',false):'')+'</div></div>';
+  }
+  $('#p-banker').innerHTML=h;
+}
+function chk(label,status,text){return '<div class="chk"><span>'+label+'</span><span class="pillx '+status+'">'+text+'</span></div>';}
+function renderRisk(){
+  var c=selC(),h='';
+  if(!c){h+='<div class="empty">Ask Dolly a question. Every step is checked and logged here.</div>';}
+  else{
+    var rate=c.key==='rate',src=c.key==='rate'||c.key==='dd',yes=c.consent==='yes';
+    h+=selector();
+    h+='<div class="card"><h3>Checks for chat '+c.id+': '+c.theme+'</h3>'+
+      chk('AI disclosure shown at the start','ok','Pass')+
+      chk('Answer drawn from an approved source',src?'ok':'na',src?'Pass':'Not needed')+
+      chk('Reg DD elements in a rate answer (APY, variable, as-of date, minimum balance)',rate?'ok':'na',rate?'Pass':'Not needed')+
+      chk('Human option visible throughout','ok','Pass')+
+      chk('Customer consent before banker follow-up',c.consent?(yes?'ok':'flag'):'na',c.consent?(yes?'Yes, logged':'Declined, not shared'):'Not asked yet')+
+      chk('Reg E dispute routed to a person',c.key==='dispute'?'flag':'na',c.key==='dispute'?'Triggered and routed':'Not triggered')+
+      chk('Hardship signal: offers suppressed',c.key==='hard'?'flag':'na',c.key==='hard'?'Triggered and suppressed':'Not triggered')+
+      chk('Offer comes from the approved catalog',(yes&&c.canOffer)?'ok':'na',(yes&&c.canOffer)?'Pass':'No offer made')+
+      '</div>';
+  }
+  var flagged=S.convos.filter(function(x){return x.flags.length||x.handoff;});
+  h+='<div class="card"><h3>Monitoring</h3><dl class="kv"><dt>Chats this session</dt><dd>'+S.convos.length+'</dd><dt>Flagged chats</dt><dd>'+flagged.length+(flagged.length?' (all routed to a person)':'')+'</dd><dt>Escalation misses</dt><dd>0. A miss is a customer who needed a person and did not get one.</dd></dl></div>';
+  h+='<div class="card"><h3>Audit log</h3>'+(S.audit.length?'<div class="log">'+S.audit.slice(0,14).map(function(a){return '<span class="t">'+a.t+'</span><span class="'+(a.kind==='flag'?'flag':a.kind==='pass'?'pass':'')+'">'+a.text+(a.cid?' <span class="conv">(chat '+a.cid+')</span>':'')+'</span>';}).join('')+'</div>':'<p class="lead">Nothing logged yet.</p>')+'</div>';
+  $('#p-risk').innerHTML=h;
+}
+function bar(label,n,max,o){return '<div class="bar"><span>'+label+'</span><span class="track"><span class="fill'+(o?' o':'')+'" style="display:block;width:'+Math.max(2,Math.round(n/max*100))+'%"></span></span><span class="n">'+n+'</span></div>';}
+function renderAnalytics(){
+  var st=stats(),t=st.themes,tmax=Math.max.apply(null,Object.keys(t).map(function(k){return t[k];}));
+  var order=Object.keys(t).sort(function(a,b){return t[b]-t[a];});
+  var f=st.funnel,fmax=f.convos;
+  var rate=function(a,b){return b?Math.round(a/b*100)+'%':'n/a';};
+  var h='<div class="card"><h3>What customers are asking</h3><p class="lead" style="margin-bottom:10px">Themes from conversations. Starter data plus your session.</p><div class="bars">'+order.map(function(k){return bar(THEME_LABEL[k],t[k],tmax,k==='rate');}).join('')+'</div></div>';
+  h+='<div class="card"><h3>From question to branch visit to switch</h3><div class="bars">'+
+    bar('Conversations',f.convos,fmax)+bar('Agreed to a banker',f.banker,fmax)+bar('Booked a branch visit',f.appts,fmax)+bar('Visited the branch',f.visits,fmax,true)+bar('Switched direct deposit',f.switched,fmax,true)+'</div>'+
+    '<p class="note" style="margin-top:10px">Agreed to a banker: '+rate(f.banker,f.convos)+' of chats. Booked a visit: '+rate(f.appts,f.banker)+' of those. Visited: '+rate(f.visits,f.appts)+' of bookings. Switched: '+rate(f.switched,f.visits)+' of visits.</p></div>';
+  h+='<div class="card"><h3>Offer results</h3><dl class="kv"><dt>Offers shown</dt><dd>'+st.offered+'</dd><dt>Accepted</dt><dd>'+st.accepted+' ('+rate(st.accepted,st.offered)+')</dd></dl><p class="note" style="margin-top:8px">Observed acceptance replaces the assumption in the Product Owner’s rate sandbox.</p></div>';
+  $('#p-analytics').innerHTML=h;
+}
+function poStatic(){
+  $('#p-po').innerHTML=
+   '<div class="card"><h3>Signal from Dolly</h3><div id="po-signal"></div></div>'+
+   '<div class="card"><h3>Rate sandbox for the HYSA</h3><p class="lead" style="margin-bottom:12px">A toy model with placeholder inputs. Change them and compare ways to protect deposits.</p>'+
+   '<div class="ctl"><label for="m-apy">Proposed APY <output id="o-apy"></output></label><input id="m-apy" type="range" min="3.5" max="4.6" step="0.05" data-m="apy"></div>'+
+   '<div class="ctl"><label for="m-eng">Share of at-risk customers Dolly engages <output id="o-eng"></output></label><input id="m-eng" type="range" min="10" max="70" step="5" data-m="eng"></div>'+
+   '<div class="ctl"><label for="m-acc">Share of engaged who accept an offer <output id="o-acc"></output></label><input id="m-acc" type="range" min="5" max="40" step="1" data-m="acc"></div>'+
+   '<div class="ctl"><label for="m-bonus">Relationship bonus <output id="o-bonus"></output></label><input id="m-bonus" type="range" min="50" max="400" step="25" data-m="bonus"></div>'+
+   '<p class="note" id="po-cur"></p>'+
+   '<details style="margin-top:8px"><summary class="note">Placeholder assumptions</summary><p class="note">50,000 savings customers, $10,000 average balance. Market reference rate 4.40%. 12% of balances at risk per point of rate gap. Each accepted switch brings $3,000 of noninterest-bearing balances.</p></details></div>'+
+   '<div class="card"><h3>Compare the options</h3><div class="tblw" id="po-out"></div></div>'+
+   '<div class="card"><h3>Disclosure check</h3><div id="po-reg"></div></div>'+
+   '<div class="card"><button class="btn primary" data-act="publish">Publish proposed APY to the offer catalog</button><p class="note" id="po-pub" style="margin-top:8px"></p></div>';
+  var m=S.model;
+  $('#m-apy').value=m.apy;$('#m-eng').value=m.eng;$('#m-acc').value=m.acc;$('#m-bonus').value=m.bonus;
+}
+function poUpdate(){
+  if(!$('#po-out'))return;
+  var m=S.model,r=model(),st=stats(),cur=S.catalog.apy;
+  $('#o-apy').textContent=m.apy.toFixed(2)+'%';$('#o-eng').textContent=m.eng+'%';$('#o-acc').textContent=m.acc+'%';$('#o-bonus').textContent='$'+m.bonus;
+  $('#po-cur').textContent='Published now: '+cur.toFixed(2)+'% APY (rate sheet v'+S.catalog.ver+'). Dolly quotes only what is published.';
+  var obs=st.offered?st.accepted/st.offered:0;
+  $('#po-signal').innerHTML='<dl class="kv"><dt>Rate-comparison chats</dt><dd>'+st.themes.rate+' so far'+(st.rateQs?' (including '+st.rateQs+' from your session)':'')+', the top theme</dd><dt>Observed offer acceptance</dt><dd>'+Math.round(obs*100)+'% ('+st.accepted+' of '+st.offered+'). The sandbox assumes '+m.acc+'%.</dd></dl><p style="margin-top:10px"><button class="btn sm ghost" data-act="observed">Use observed acceptance</button></p>';
+  var row=function(label,a,b,c,good){return '<tr><th scope="row">'+label+'</th><td class="num">'+a+'</td><td class="num">'+b+'</td><td class="num">'+c+'</td></tr>';};
+  $('#po-out').innerHTML='<table><thead><tr><th></th><th>Rate move only</th><th>Dolly offers only</th><th>Both</th></tr></thead><tbody>'+
+    row('Deposits kept vs. doing nothing',fm(r.A.kept),fm(r.B.kept),fm(r.C.kept))+
+    row('Added annual cost',fm(r.A.cost),fm(r.B.cost),fm(r.C.cost))+
+    row('Cost per $1 kept',fpp(r.A.cost,r.A.kept),fpp(r.B.cost,r.B.kept),fpp(r.C.cost,r.C.kept))+
+    row('New noninterest-bearing balances','$0.00M','<span class="good">'+fm(r.B.nib)+'</span>','<span class="good">'+fm(r.C.nib)+'</span>')+
+    '</tbody></table><p class="note" style="margin-top:8px">At risk if nothing changes: '+fm(r.L0)+' of '+fm(r.B0)+'. A rate move keeps more dollars but costs more per dollar and does nothing for the noninterest-bearing mix. Targeted offers cost less per dollar and bring primary-relationship balances.</p>';
+  var d=m.apy-cur,msg;
+  if(Math.abs(d)<0.001)msg='No rate change proposed. Dolly keeps quoting v'+S.catalog.ver+'.';
+  else if(d>0)msg='Rate increase on a variable-rate account. Update the rate sheet, website and app. Any advertised APY needs the term annual percentage yield, a variable-rate statement, an as-of date and the minimum balance. Dolly will quote the new rate only after you publish. Confirm with Compliance.';
+  else msg='Rate decrease. Changes to a variable rate are exempt from the 30-day change-in-terms notice, but Compliance should confirm the account’s disclosed index and mechanism first. Dolly will quote the new rate only after you publish.';
+  $('#po-reg').innerHTML='<p>'+msg+'</p>';
+  $('#po-pub').textContent=S.pub;
+}
+function renderLoop(){
+  var st=stats(),f=st.funnel,r=model();
+  var node=function(t,n,hot){return '<div class="node'+(hot?' hot':'')+'">'+t+'<b>'+n+'</b></div>';};
+  var h='<div class="card"><h3>How the loop runs</h3><div class="flow">'+
+    node('Customers ask Dolly',f.convos)+node('Agree to a banker',f.banker)+node('Book a branch visit',f.appts)+node('Visit the branch',f.visits,true)+node('Switch direct deposit',f.switched,true)+'</div>'+
+    '<div class="flow" style="margin-top:10px">'+node('Risk checks every step',S.audit.length+' log lines')+node('Analytics learn themes',Object.keys(st.themes).length+' themes')+node('Product Owner tests rates','v'+S.catalog.ver)+node('Catalog update','APY '+S.catalog.apy.toFixed(2)+'%')+'</div>'+
+    '<p class="back">↩ The updated catalog goes back to Dolly, so the next customer hears the new answer.</p></div>';
+  h+='<div class="card"><h3>How it turns into more deposits and branch visits</h3><dl class="kv">'+
+    '<dt>Keep</dt><dd>Rate questions get an honest answer plus a targeted offer, not a blanket rate rise. In the sandbox, Dolly offers keep '+fm(r.B.kept)+' of the '+fm(r.L0)+' at risk, at '+fpp(r.B.cost,r.B.kept)+' per dollar.</dd>'+
+    '<dt>Move</dt><dd>Each accepted switch brings primary-relationship balances. The sandbox models '+fm(r.B.nib)+' of new noninterest-bearing balances.</dd>'+
+    '<dt>Visit</dt><dd>Dolly books branch visits with the banker already briefed. '+f.appts+' booked and '+f.visits+' completed so far in the demo data.</dd>'+
+    '<dt>Learn</dt><dd>Every outcome returns to analytics, so the next rate decision uses observed acceptance ('+st.accepted+' of '+st.offered+') instead of an assumption.</dd></dl></div>';
+  $('#p-loop').innerHTML=h;
+}
+function renderPilot(){
+  $('#p-pilot').innerHTML=
+  '<div class="card"><h3>Recommendation: pilot in the Denver metro, validate in Phoenix</h3><p class="lead">Denver is where PNC’s retail position, branch network and newly converted FirstBank customers are strongest. Phoenix tests whether the result holds with a smaller footprint.</p></div>'+
+  '<div class="card tblw"><table><thead><tr><th></th><th>Denver metro</th><th>Phoenix metro</th><th>Legacy PNC market</th></tr></thead><tbody>'+
+  '<tr><th scope="row">Deposit position</th><td>#1 in Denver: 20% retail deposit share</td><td>Smaller position. Share not found.</td><td>Established. Not researched.</td></tr>'+
+  '<tr><th scope="row">Branch lever</th><td>14% branch share. About 120 Colorado branches, 82 from FirstBank.</td><td>All 13 Arizona FirstBank branches are in the Phoenix area. PNC has 70+ in Arizona.</td><td>Mature network. Not researched.</td></tr>'+
+  '<tr><th scope="row">Converted customers</th><td>Most of the 780,000 converted customers are likely here (82 of 95 branches).</td><td>Fewer (13 of 95 branches).</td><td>None.</td></tr>'+
+  '<tr><th scope="row">Regulatory timing</th><td>Colorado’s AI law (SB 26-189) takes effect Jan 1, 2027. Build to it from day one.</td><td>Not researched.</td><td>Not researched.</td></tr>'+
+  '<tr><th scope="row">Role</th><td><b>Wave 1 pilot</b></td><td><b>Wave 2 validation</b></td><td><b>Gate D repeat test</b></td></tr>'+
+  '</tbody></table></div>'+
+  '<div class="card"><h3>Why now</h3><p class="lead">In Q3 2026 PNC’s noninterest-bearing share of average deposits was 22%, down from 23% in Q2. The growth PNC cited came from FirstBank and commercial interest-bearing deposits. A tool that moves consumer primary relationships has room to matter.</p></div>'+
+  '<div class="card"><h3>Still to research before committing</h3><p class="lead">Denver-specific competition for savings deposits, app adoption among converted customers, and which branch clusters to include. Pick three or four clusters with a matched comparison group.</p></div>'+
+  '<div class="card"><h3>Sources</h3><p class="note"><a href="https://investor.pnc.com/sec-filings/all-sec-filings/content/0001628280-26-044499/0001628280-26-044499.pdf" target="_blank" rel="noopener">PNC Form 8-K, conversion complete (June 22, 2026)</a> · <a href="https://investor.pnc.com/news-events/financial-press-releases/detail/666" target="_blank" rel="noopener">PNC FirstBank announcement (Denver share)</a> · <a href="https://www.sec.gov/Archives/edgar/data/0000713676/000162828026065936/q32026financialhighlightsa.htm" target="_blank" rel="noopener">PNC Q3 2026 financial highlights</a> · <a href="https://www.costar.com/article/1353185986" target="_blank" rel="noopener">CoStar on FirstBank branch counts</a></p></div>';
+}
+function renderTabs(){
+  $('#tabs').innerHTML=TABS.map(function(t){return '<button role="tab" class="tab" data-act="tab" data-tab="'+t[0]+'" aria-selected="'+(S.tab===t[0])+'">'+t[1]+(S.dirty[t[0]]?'<span class="dot" aria-label="updated"></span>':'')+'</button>';}).join('');
+  TABS.forEach(function(t){var p=$('#p-'+t[0]);if(p)p.hidden=(S.tab!==t[0]);});
+}
+var TOUR=[
+ {tab:'risk',cap:'A customer asks why another bank’s rate is higher. Dolly answers from the approved rate sheet, shows its source, and every check is logged for Risk and compliance.',run:function(){ask('rate');}},
+ {tab:'banker',cap:'She agrees to a banker follow-up and books a branch visit. The banker gets a one-screen brief with an approved offer. Nothing is shared without her yes.',run:function(){chooseLast('yes');chooseLast('slot0');}},
+ {tab:'analytics',cap:'After the visit, the banker records what happened. Themes and the funnel from question to branch visit to switch update, so the team sees what moves deposits.',run:function(){var c=S.convos[S.convos.length-1];if(c){outcome(c.id,'visited');outcome(c.id,'accepted');outcome(c.id,'switched');}}},
+ {tab:'po',cap:'The Product Owner sees rate questions rising and compares a rate move with targeted offers. Try the sliders, then publish.',run:function(){}},
+ {tab:'loop',cap:'The new rate sheet goes live. The next customer who asks hears the updated answer, and the loop starts again.',run:function(){publish();ask('rate');}}
+];
+function renderTour(){
+  var el=$('#tour');
+  if(S.tour===0){el.innerHTML='<div class="cap"><b>Guided tour</b><span>Follow one customer from a question to a branch visit, and watch the bank’s views update. You can also ask your own questions on the left.</span></div><button class="btn primary" data-act="tour">Start the tour</button>';return;}
+  var done=S.tour>=TOUR.length;
+  el.innerHTML='<div class="cap"><b>Step '+S.tour+' of '+TOUR.length+'</b><span>'+TOUR[S.tour-1].cap+'</span></div><button class="btn primary" data-act="'+(done?'reset':'tour')+'">'+(done?'Restart the demo':'Next step')+'</button>';
+}
+function tourNext(){
+  if(S.tour>=TOUR.length)return;
+  var s=TOUR[S.tour];s.run();S.tab=s.tab;S.dirty[s.tab]=false;S.tour++;renderAll();
+}
+function publish(){
+  var m=S.model;
+  if(Math.abs(m.apy-S.catalog.apy)<0.001){S.pub='No change to publish. The proposed APY matches the catalog.';return;}
+  S.catalog.apy=Math.round(m.apy*100)/100;S.catalog.ver++;
+  S.pub='Published rate sheet v'+S.catalog.ver+' at '+S.catalog.apy.toFixed(2)+'% APY. Dolly now quotes this rate.';
+  S.audit.unshift({t:tick(),cid:null,text:'Catalog published: rate sheet v'+S.catalog.ver+' at '+S.catalog.apy.toFixed(2)+'% APY','kind':'pass'});
+  touch('risk','loop','analytics');
+}
+function renderAll(){renderPhone();renderChips();renderTabs();renderBanker();renderRisk();renderAnalytics();renderLoop();renderTour();poUpdate();}
+
+function reset(){
+  S=fresh();
+  S.msgs.push({who:'dolly',text:'Hi, I’m Dolly, PNC’s AI assistant. Pick a question below, or tap Talk to a person at any time.'});
+  S.audit.unshift({t:tick(),cid:null,text:'AI disclosure shown at the start of the chat',kind:'pass'});
+  renderPilot();poStatic();renderAll();
+}
+
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  var a=b.getAttribute('data-act');
+  if(b.getAttribute('data-m')!==null){choose(parseInt(b.getAttribute('data-m'),10),a);renderAll();return;}
+  if(a==='ask'){ask(b.getAttribute('data-key'));S.tab=S.tab;renderAll();}
+  else if(a==='person'){person();renderAll();}
+  else if(a==='tab'){S.tab=b.getAttribute('data-tab');S.dirty[S.tab]=false;renderTabs();}
+  else if(a==='sel'){S.sel=parseInt(b.getAttribute('data-id'),10);renderBanker();renderRisk();}
+  else if(a==='out'){outcome(parseInt(b.getAttribute('data-id'),10),b.getAttribute('data-k'));renderAll();}
+  else if(a==='publish'){publish();renderAll();}
+  else if(a==='observed'){var st=stats();var o=st.offered?Math.round(st.accepted/st.offered*100):15;S.model.acc=Math.min(40,Math.max(5,o));$('#m-acc').value=S.model.acc;poUpdate();}
+  else if(a==='tour'){tourNext();}
+  else if(a==='reset'){reset();}
+});
+document.addEventListener('input',function(e){
+  var k=e.target.getAttribute&&e.target.getAttribute('data-m');
+  if(!k||e.target.tagName!=='INPUT')return;
+  S.model[k]=parseFloat(e.target.value);poUpdate();renderLoop();
+});
+reset();
+})();
+</script>
+</body>
+</html>

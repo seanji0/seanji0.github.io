@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Things to Do in Ithaca Right Now | Ithaca Right Now</title>
+<meta name="description" content="A weather- and season-aware guide to Ithaca, NY: tell it how much time you have and it suggests real gorges, parks, museums, food, and events that fit right now.">
+<meta property="og:title" content="Ithaca Right Now — things to do, matched to your time and the weather">
+<meta property="og:description" content="Tell it how much free time you have, whether you've got a car, and what the weather's doing — get a real Ithaca activity that actually fits.">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEEBDF;
+    --paper-dim:#E4E0D0;
+    --line:#CBC4AC;
+    --ink:#1B2622;
+    --ink-soft:#54594F;
+    --teal:#1F5C56;
+    --teal-deep:#123B37;
+    --moss:#5E6E43;
+    --amber:#B87A2E;
+    --water:#336C86;
+    --card-bg:#F8F6ED;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{ transition: background-color .7s ease; }
+  body{
+    position:relative;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 8% 0%, rgba(31,92,86,0.07), transparent 40%),
+      radial-gradient(circle at 95% 8%, rgba(184,122,46,0.06), transparent 38%);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    transition: background-color .7s ease, color .7s ease;
+  }
+  nav.top, .hero, .wrap, .ad-slot, .guide-header, #categoryContainer, footer{
+    position:relative; z-index:1;
+  }
+
+  /* ---------- AMBIENT WEATHER/SEASON LAYER ---------- */
+  .particles{
+    position:fixed; inset:0; overflow:hidden;
+    pointer-events:none; z-index:0;
+  }
+  body.mood-foggy .particles::before,
+  body.mood-foggy .particles::after{
+    content:''; position:absolute; left:-20%; width:140%; height:220px;
+    background:radial-gradient(ellipse at center, rgba(220,225,224,0.55), transparent 70%);
+    filter:blur(8px);
+    animation:drift 34s linear infinite;
+  }
+  body.mood-foggy .particles::before{ top:6%; animation-duration:40s; }
+  body.mood-foggy .particles::after{ top:52%; animation-duration:52s; animation-direction:reverse; opacity:.7; }
+  @keyframes drift{ from{ transform:translateX(-10%); } to{ transform:translateX(10%); } }
+
+  body.mood-glow .particles::before{
+    content:''; position:absolute; top:-10%; left:10%; width:60%; height:60%;
+    background:radial-gradient(circle, rgba(217,138,46,0.30), transparent 65%);
+    animation:glowPulse 7s ease-in-out infinite;
+  }
+  @keyframes glowPulse{ 0%,100%{ opacity:.55; transform:scale(1); } 50%{ opacity:.9; transform:scale(1.08); } }
+
+  .p-piece{
+    position:absolute; top:-24px; will-change:transform,opacity;
+    animation-name:fallPiece; animation-timing-function:linear; animation-iteration-count:infinite;
+  }
+  @keyframes fallPiece{
+    from{ transform:translate(0,-5vh) rotate(0deg); }
+    to{ transform:translate(var(--drift,20px),110vh) rotate(var(--spin,120deg)); }
+  }
+  .p-snow{ border-radius:50%; background:#FFFFFF; opacity:.85; box-shadow:0 0 4px rgba(255,255,255,.7); }
+  .p-rain{ width:1.5px; background:linear-gradient(rgba(200,215,220,0) 0%, rgba(200,215,220,.55) 100%); border-radius:2px; opacity:.6; }
+  .p-leaf, .p-petal{ font-size:16px; line-height:1; opacity:.85; }
+
+  @media (prefers-reduced-motion: reduce){
+    .particles, .particles *{ display:none !important; }
+    html, body{ transition:none; }
+  }
+
+  .weather-auto-note{
+    font-size:11.5px; color:var(--ink-soft); font-style:italic; min-height:15px;
+  }
+  a{ color:var(--teal-deep); }
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 24px; }
+
+  /* ---------- NAV ---------- */
+  nav.top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 24px;
+    max-width:1080px; margin:0 auto;
+  }
+  .brand{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:19px;
+    letter-spacing:-0.01em;
+  }
+  .brand span{ color:var(--teal); }
+  nav.top a.navlink{
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    text-decoration:none;
+  }
+  nav.top a.navlink:hover{ color:var(--teal-deep); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width:1080px; margin:0 auto;
+    padding:20px 24px 8px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(32px,4.6vw,48px);
+    line-height:1.08;
+    margin:0 0 14px;
+    max-width:16ch;
+  }
+  .hero-dek{
+    font-size:16.5px;
+    color:var(--ink-soft);
+    max-width:56ch;
+    line-height:1.55;
+    margin:0 0 32px;
+  }
+
+  /* ---------- RECOMMENDER ---------- */
+  .rec-panel{
+    background:var(--card-bg);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:26px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px 24px;
+    margin-bottom:20px;
+  }
+  @media(max-width:680px){ .rec-panel{ grid-template-columns:1fr; } }
+
+  .field{ display:flex; flex-direction:column; gap:8px; }
+  .field.span2{ grid-column:1 / -1; }
+  .field-label-row{ display:flex; justify-content:space-between; align-items:baseline; }
+  .field-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .field-value{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    font-weight:700;
+    color:var(--teal);
+  }
+  input[type="range"]{
+    -webkit-appearance:none;
+    width:100%; height:6px; border-radius:4px;
+    background:var(--paper-dim);
+    border:1px solid var(--line);
+    outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:19px;height:19px;border-radius:50%;
+    background:var(--teal); border:2px solid var(--card-bg);
+    box-shadow:0 0 0 1px var(--teal); cursor:pointer;
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:19px;height:19px;border-radius:50%;
+    background:var(--teal); border:2px solid var(--card-bg);
+    box-shadow:0 0 0 1px var(--teal); cursor:pointer;
+  }
+  .scale-labels{
+    display:flex; justify-content:space-between;
+    font-size:10.5px; color:var(--ink-soft);
+    font-family:'JetBrains Mono',monospace;
+  }
+  select.field-select{
+    width:100%; padding:10px 11px;
+    border-radius:8px; border:1px solid var(--line);
+    background:var(--paper); font-family:'Inter',sans-serif;
+    font-size:13.5px; color:var(--ink);
+  }
+  .seg{ display:flex; gap:6px; flex-wrap:wrap; }
+  .seg button{
+    flex:1; min-width:0;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600;
+    padding:10px 8px; border-radius:8px; border:1px solid var(--line);
+    background:var(--paper); color:var(--ink-soft); cursor:pointer;
+    white-space:nowrap; transition:all .15s ease;
+  }
+  .seg.wrap-tight button{ flex:none; }
+  .seg button:hover{ border-color:var(--teal); color:var(--teal-deep); }
+  .seg button.active{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+
+  .pick-card{
+    background:linear-gradient(155deg, var(--teal) 0%, var(--teal-deep) 100%);
+    color:#F3F1E6;
+    border-radius:14px;
+    padding:28px 26px;
+    margin-bottom:10px;
+    box-shadow:0 10px 26px rgba(18,59,55,0.22);
+  }
+  .pick-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+    opacity:.78; margin-bottom:10px;
+  }
+  .pick-cat{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px; opacity:.8; margin-bottom:6px;
+  }
+  .pick-name{
+    font-family:'Fraunces',serif; font-weight:600;
+    font-size:clamp(21px,2.7vw,27px); line-height:1.25; margin-bottom:10px;
+  }
+  .pick-desc{ font-size:14.5px; line-height:1.55; opacity:.92; margin-bottom:18px; max-width:56ch; }
+  .pick-actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .pick-reroll{
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+    padding:10px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.4);
+    background:rgba(255,255,255,.08); color:#F3F1E6; cursor:pointer;
+    transition:background .15s ease;
+  }
+  .pick-reroll:hover{ background:rgba(255,255,255,.18); }
+
+  .result-count{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft);
+    margin:22px 0 10px;
+  }
+  .result-list{ list-style:none; margin:0 0 8px; padding:0; border-top:1px solid var(--line); }
+  .result-list li{
+    display:flex; gap:12px; align-items:baseline;
+    padding:12px 2px; border-bottom:1px solid var(--line); font-size:14px; line-height:1.5;
+  }
+  .result-list li .rname{ font-weight:600; }
+  .result-list li .rmeta{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft);
+    white-space:nowrap; margin-left:auto; padding-left:10px; flex-shrink:0;
+  }
+  .result-empty{
+    display:none; text-align:center; padding:34px 16px; color:var(--ink-soft); font-style:italic;
+  }
+
+  /* ---------- AD SLOTS ---------- */
+  .ad-slot{
+    max-width:1080px; margin:26px auto; padding:0 24px;
+  }
+  .ad-box{
+    border:1px dashed var(--line);
+    border-radius:10px;
+    background:var(--paper-dim);
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:.04em; text-transform:uppercase;
+    display:flex; align-items:center; justify-content:center;
+    height:90px;
+  }
+  .ad-box.leaderboard{ height:90px; }
+  .ad-box.in-content{ height:110px; }
+
+  /* ---------- CATEGORY GUIDE ---------- */
+  .guide-header{ max-width:1080px; margin:44px auto 6px; padding:0 24px; }
+  .guide-header h2{
+    font-family:'Fraunces',serif; font-weight:600; font-size:clamp(24px,3.2vw,32px);
+    margin:0 0 8px;
+  }
+  .guide-header p{ color:var(--ink-soft); font-size:14.5px; max-width:60ch; line-height:1.55; margin:0; }
+
+  .category-section{ max-width:1080px; margin:0 auto; padding:34px 24px 6px; }
+  .category-title{
+    display:flex; align-items:baseline; gap:10px;
+    font-family:'Fraunces',serif; font-weight:600; font-size:22px;
+    margin:0 0 4px; padding-bottom:10px; border-bottom:2px solid var(--ink);
+  }
+  .category-title .emoji{ font-size:20px; }
+  .category-sub{ color:var(--ink-soft); font-size:13.5px; margin:8px 0 18px; }
+
+  .card-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px;
+  }
+  @media(max-width:720px){ .card-grid{ grid-template-columns:1fr; } }
+
+  .place-card{
+    background:var(--card-bg);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px 18px;
+  }
+  .place-name{ font-weight:700; font-size:15px; margin-bottom:6px; }
+  .place-desc{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin-bottom:10px; }
+  .place-tags{ display:flex; gap:8px; flex-wrap:wrap; }
+  .tag{
+    font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    padding:3px 8px; border-radius:5px;
+    background:var(--paper-dim); border:1px solid var(--line); color:var(--ink-soft);
+  }
+  .tag.cost{ color:var(--amber); border-color:var(--amber); background:transparent; }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    max-width:1080px; margin:50px auto 0; padding:24px 24px 50px;
+    font-size:12.5px; color:var(--ink-soft); line-height:1.7;
+    border-top:1px solid var(--line);
+  }
+  footer strong{ color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="particles" id="particleLayer" aria-hidden="true"></div>
+
+<nav class="top">
+  <div class="brand">Ithaca <span>Right Now</span></div>
+  <a class="navlink" href="#guide">Full guide ↓</a>
+</nav>
+
+<div class="hero">
+  <h1>What can you do in Ithaca right now?</h1>
+  <p class="hero-dek">Set how much time you've got, the weather, and whether you have a car — this pulls one real thing to do from gorges, parks, museums, food, and events around Ithaca, NY.</p>
+</div>
+
+<div class="wrap">
+  <div class="rec-panel">
+    <div class="field span2">
+      <div class="field-label-row">
+        <label class="field-label" for="minutesRange">Free time</label>
+        <span class="field-value" id="minutesDisplay">60 min</span>
+      </div>
+      <input type="range" id="minutesRange" min="15" max="480" step="15" value="60">
+      <div class="scale-labels"><span>15 min</span><span>2 hrs</span><span>4 hrs</span><span>8 hrs+</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row"><label class="field-label">Weather right now</label></div>
+      <div class="seg wrap-tight" id="weatherSeg">
+        <button class="active" data-val="any">Not sure</button>
+        <button data-val="warm">☀️ Warm &amp; sunny</button>
+        <button data-val="clear">🌤️ Clear &amp; mild</button>
+        <button data-val="dry">🍂 Cool &amp; dry</button>
+        <button data-val="cold">🥶 Cold &amp; dry</button>
+        <button data-val="rain">🌧️ Rainy</button>
+        <button data-val="snow">❄️ Snowy</button>
+      </div>
+      <div class="weather-auto-note" id="weatherAutoNote"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row"><label class="field-label" for="monthSelect">Time of year</label></div>
+      <select id="monthSelect" class="field-select">
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row"><label class="field-label">Got a car?</label></div>
+      <div class="seg" id="carSeg">
+        <button class="active" data-val="true">Yes</button>
+        <button data-val="false">On foot / bike only</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row"><label class="field-label">Indoors only?</label></div>
+      <div class="seg" id="indoorSeg">
+        <button class="active" data-val="false">No preference</button>
+        <button data-val="true">Keep it indoors</button>
+      </div>
+    </div>
+
+    <div class="field span2">
+      <label class="field-label-row" style="cursor:pointer;">
+        <span class="field-label" style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="kidToggle" style="margin:0;"> Traveling with kids
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <div class="pick-card">
+    <div class="pick-eyebrow">Right now, you could&hellip;</div>
+    <div class="pick-cat" id="pickCat">—</div>
+    <div class="pick-name" id="pickName">Adjust the settings above to get a suggestion.</div>
+    <div class="pick-desc" id="pickDesc"></div>
+    <div class="pick-actions">
+      <button class="pick-reroll" id="rerollBtn">🎲 Give me another idea</button>
+    </div>
+  </div>
+
+  <div class="result-count" id="resultCount"></div>
+  <ol class="result-list" id="resultList"></ol>
+  <div class="result-empty" id="resultEmpty">Nothing fits those exact conditions — try more time, "not sure" weather, or turning off "indoors only."</div>
+</div>
+
+<div class="ad-slot">
+  <div class="ad-box leaderboard">Ad space — 728×90 leaderboard</div>
+</div>
+
+<div class="guide-header" id="guide">
+  <h2>The full Ithaca guide</h2>
+  <p>Everything above, organized by category — for browsing ahead of time, not just in the moment. Hours, prices, and event dates change; always check the official listing before you go.</p>
+</div>
+
+<div id="categoryContainer"></div>
+
+<footer>
+  <strong>Ithaca Right Now</strong> is an independent guide and is not affiliated with, endorsed by, or operated by Cornell University, Ithaca College, or the City of Ithaca. Details on hours, admission, and event dates were accurate as of publication but change often — confirm with the venue before you visit. Have a correction or a place we should add? Let us know.
+</footer>
+
+<script>
+const items = [
+{n:"Taughannock Falls gorge and rim trails",d:"An easy path leads right up to the base of a 215-foot waterfall \u2014 taller than Niagara \u2014 with a steeper rim trail above for wider views over the gorge.",cat:"gorges",m:90,w:"dry",mo:null,i:false,car:true,k:true,cost:"$"},
+{n:"Buttermilk Falls gorge trail and swimming hole",d:"A stepped gorge trail climbs past a series of cascades to a natural stone swimming hole, open for guarded swimming in summer.",cat:"gorges",m:90,w:"dry",mo:null,i:false,car:true,k:true,cost:"$"},
+{n:"Robert H. Treman State Park, Lucifer Falls loop",d:"Nine miles of trail wind through the Enfield Glen gorge past twelve waterfalls, including the 115-foot Lucifer Falls.",cat:"gorges",m:120,w:"dry",mo:null,i:false,car:true,k:true,cost:"$"},
+{n:"Ithaca Falls",d:"A short, flat walk from a residential street a few blocks from downtown puts you at the base of a genuinely big waterfall \u2014 no park fee, no long hike.",cat:"gorges",m:30,w:"dry",mo:null,i:false,car:false,k:true,cost:"Free"},
+{n:"Cascadilla Gorge Trail",d:"Stone steps and footbridges climb a small gorge that links downtown Ithaca directly to Cornell's campus \u2014 closed when icy, so it's a fair-weather route.",cat:"gorges",m:45,w:"dry",mo:[4, 5, 6, 7, 8, 9, 10, 11],i:false,car:false,k:false,cost:"Free"},
+{n:"Six Mile Creek / Wells Falls trail",d:"A quieter alternative to the state parks: a wooded trail to a four-tiered waterfall locals call Businessman's Lunch Falls, with far smaller crowds.",cat:"gorges",m:60,w:"dry",mo:null,i:false,car:true,k:true,cost:"Free"},
+{n:"Black Diamond Trail",d:"A flat, paved multi-use path runs along Cayuga Lake's western shore between Cass Park and Taughannock Falls \u2014 good for a run, walk, or bike ride.",cat:"gorges",m:90,w:"dry",mo:null,i:false,car:true,k:true,cost:"Free"},
+{n:"Watkins Glen State Park",d:"About 40 minutes north, the Finger Lakes' single most famous gorge trail winds behind and under 19 waterfalls on a stone path carved into the rock. Trail typically open May\u2013November.",cat:"gorges",m:180,w:"dry",mo:[5, 6, 7, 8, 9, 10],i:false,car:true,k:true,cost:"$"},
+{n:"Cross-country ski or snowshoe at Taughannock",d:"The park's summer walking trail becomes a groomed winter route past sledding slopes and natural skating ponds once the snow sets in.",cat:"seasonal",m:90,w:"snow",mo:[12, 1, 2, 3],i:false,car:true,k:true,cost:"$"},
+{n:"Sledding or skating at Taughannock",d:"Bring your own sled or skates for the park's natural ponds and slopes \u2014 free once you're past the gate.",cat:"seasonal",m:60,w:"snow",mo:[12, 1, 2],i:false,car:true,k:true,cost:"$"},
+{n:"Stewart Park playground and carousel",d:"An inclusive, state-of-the-art playground sits beside a 1952 carousel that runs from Memorial Day through Labor Day.",cat:"parks",m:60,w:"dry",mo:[5, 6, 7, 8, 9],i:false,car:false,k:true,cost:"$"},
+{n:"Stewart Park waterfront trail and bird sanctuary",d:"A flat lakeside path loops past a duck pond and the Fuertes Bird Sanctuary, with Cayuga Lake open water the whole way.",cat:"parks",m:45,w:"dry",mo:null,i:false,car:false,k:true,cost:"Free"},
+{n:"Ice skating at Cass Park Rink",d:"Public skating sessions run on an enclosed indoor rink from late October through mid-March, with rentals and sharpening on site.",cat:"seasonal",m:90,w:"any",mo:[10, 11, 12, 1, 2, 3],i:true,car:true,k:true,cost:"$"},
+{n:"Swim at Cass Park Pool",d:"An Olympic-sized outdoor pool with a water slide and diving board, open for public swimming mid-June through August.",cat:"parks",m:90,w:"warm",mo:[6, 7, 8],i:false,car:true,k:true,cost:"$"},
+{n:"Kayak or paddleboard from Stewart Park",d:"Self-guided rentals launch straight onto the Cayuga Inlet \u2014 no reservation or prior experience needed.",cat:"water",m:90,w:"warm",mo:[5, 6, 7, 8, 9, 10],i:false,car:false,k:true,cost:"$$"},
+{n:"Cornell Botanic Gardens",d:"A free public garden and arboretum with ponds, plant collections, and quiet trails across more than 4,000 acres.",cat:"parks",m:75,w:"dry",mo:null,i:false,car:false,k:true,cost:"Free"},
+{n:"Dewitt Park",d:"A small, tree-lined downtown park surrounded by historic buildings \u2014 an easy spot for a picnic between errands on the Commons.",cat:"parks",m:30,w:"dry",mo:null,i:false,car:false,k:true,cost:"Free"},
+{n:"Bike the waterfront trails",d:"Rent a bike and link Stewart Park, Cass Park, and the Black Diamond Trail for miles of flat, car-free riding along the lake.",cat:"parks",m:90,w:"dry",mo:null,i:false,car:false,k:true,cost:"$$"},
+{n:"Sunset at Taughannock Point",d:"A lakeside park just north of the falls opens onto wide, uninterrupted water views \u2014 one of the area's best-known sunset spots.",cat:"parks",m:45,w:"dry",mo:null,i:false,car:true,k:true,cost:"Free"},
+{n:"Sciencenter",d:"A hands-on science museum built by the community, with 250-plus interactive exhibits, an outdoor science park, and a science-themed mini golf course.",cat:"museums",m:120,w:"any",mo:null,i:true,car:false,k:true,cost:"$"},
+{n:"Museum of the Earth",d:"A full North Atlantic right whale skeleton hangs over exhibits built from the museum's five million fossils, run by the Paleontological Research Institution.",cat:"museums",m:75,w:"any",mo:null,i:true,car:true,k:true,cost:"$"},
+{n:"Herbert F. Johnson Museum of Art",d:"Free admission to an I.M. Pei-designed museum on Cornell's Arts Quad, with sweeping views of the lake and hills from the top floor.",cat:"museums",m:60,w:"any",mo:null,i:true,car:false,k:false,cost:"Free"},
+{n:"Cornell Lab of Ornithology at Sapsucker Woods",d:"Free birdwatching trails wrap a pond behind the Lab of Ornithology, home to the Macaulay Library, the world's largest archive of natural sound.",cat:"museums",m:60,w:"dry",mo:null,i:false,car:true,k:true,cost:"Free"},
+{n:"History Center in Tompkins County",d:"Rotating local-history exhibits and a photo archive of more than 100,000 images, a block off the Commons.",cat:"museums",m:45,w:"any",mo:null,i:true,car:false,k:false,cost:"Free"},
+{n:"Cayuga Nature Center",d:"A wildlife center and nature trails on the lake's west shore, with resident animals and a treetop canopy walkway.",cat:"museums",m:90,w:"dry",mo:null,i:false,car:true,k:true,cost:"$"},
+{n:"Ithaca Farmers Market",d:"More than 80 vendor stalls fill a waterfront pavilion at Steamboat Landing with produce, prepared food, and crafts \u2014 open rain or shine, weekends April through December.",cat:"food",m:75,w:"any",mo:null,i:false,car:false,k:true,cost:"Free"},
+{n:"Moosewood Restaurant",d:"The vegetarian restaurant behind a famous cookbook series has served a rotating, locally sourced menu from a converted schoolhouse since 1973.",cat:"food",m:75,w:"any",mo:null,i:true,car:false,k:true,cost:"$$"},
+{n:"Purity Ice Cream",d:"A family-owned Ithaca ice cream maker since 1936, still churning the same recipes a few miles from the scoop shop.",cat:"food",m:30,w:"any",mo:null,i:true,car:true,k:true,cost:"$"},
+{n:"Ithaca Bakery",d:"Bagels, coffee, and baked goods at a local institution with several locations \u2014 a reliable stop any time of day.",cat:"food",m:30,w:"any",mo:null,i:true,car:false,k:true,cost:"$"},
+{n:"Browse the Ithaca Commons",d:"A four-block pedestrian mall of local shops, restaurants, and street performers forms the heart of downtown Ithaca.",cat:"food",m:60,w:"dry",mo:null,i:false,car:false,k:true,cost:"Free"},
+{n:"Pinesburger at Glenwood Pines",d:"A lakeside roadhouse a short drive from downtown, known for a burger tradition locals have argued about for decades.",cat:"food",m:60,w:"any",mo:null,i:true,car:true,k:true,cost:"$"},
+{n:"Ithaca Beer Company taproom",d:"A local brewery taproom with a full food menu and regular live music, a few minutes north of downtown.",cat:"drink",m:75,w:"any",mo:null,i:true,car:true,k:false,cost:"$$"},
+{n:"Six Mile Creek Vineyard",d:"Ithaca's own winery and distillery, two miles from downtown, with a tasting room overlooking vineyards and a pond.",cat:"drink",m:75,w:"any",mo:null,i:false,car:true,k:false,cost:"$$"},
+{n:"Cayuga Lake Wine Trail day trip",d:"America's oldest organized wine trail loops more than a dozen wineries, cideries, and distilleries around the lake \u2014 pick three or four for an afternoon.",cat:"drink",m:240,w:"dry",mo:null,i:false,car:true,k:false,cost:"$$$"},
+{n:"Live music at a Commons-area venue",d:"Small venues around the Commons and Collegetown book local and touring acts most weekends, year-round.",cat:"drink",m:120,w:"any",mo:null,i:true,car:false,k:false,cost:"$$"},
+{n:"Sail or cruise Cayuga Lake",d:"Hour-long lake cruises run from the farmers market dock through the summer season \u2014 no reservation required.",cat:"water",m:75,w:"warm",mo:[6, 7, 8, 9],i:false,car:false,k:true,cost:"$$"},
+{n:"Fish the Cayuga Inlet",d:"Catch-and-release fishing along the inlet at Stewart or Cass Park with a valid New York State fishing license.",cat:"water",m:90,w:"dry",mo:null,i:false,car:false,k:true,cost:"Free"},
+{n:"Swim a state park beach",d:"Guarded swimming beaches open at Taughannock and Buttermilk Falls once the weather turns warm.",cat:"water",m:90,w:"warm",mo:[6, 7, 8],i:false,car:true,k:true,cost:"$"},
+{n:"Ithaca Festival",d:"A free, multi-day celebration of music, art, and food fills Dewitt Park and the Commons each early summer.",cat:"events",m:180,w:"dry",mo:[5, 6],i:false,car:false,k:true,cost:"Free"},
+{n:"GrassRoots Festival of Music & Dance",d:"A four-day folk, roots, and world-music festival takes over the Trumansburg fairgrounds every July, drawing acts from across the globe.",cat:"events",m:480,w:"warm",mo:[7],i:false,car:true,k:true,cost:"$$$"},
+{n:"Ithaca Reggae Fest",d:"A weekend of reggae music and lake-conservation advocacy takes over Stewart Park each June, free for kids under 16.",cat:"events",m:240,w:"warm",mo:[6],i:false,car:false,k:true,cost:"$$"},
+{n:"Apple Harvest Festival",d:"An autumn street fair fills the Commons with local cider, crafts, and produce as the leaves start to turn.",cat:"events",m:120,w:"dry",mo:[9, 10],i:false,car:false,k:true,cost:"Free"},
+{n:"Fall foliage drive around Cayuga Lake",d:"A scenic loop past vineyards and gorge overlooks usually peaks for color in the second half of October.",cat:"seasonal",m:180,w:"dry",mo:[9, 10],i:false,car:true,k:true,cost:"Free"},
+{n:"Cornell Dairy Bar",d:"Ice cream made with milk from the university's own dairy herd, sold on campus a short walk from the Arts Quad.",cat:"food",m:30,w:"any",mo:null,i:true,car:false,k:true,cost:"$"}
+];
+
+
+const CATS = {
+  gorges:  { label:"Gorges & Waterfalls", emoji:"🌊", sub:"Ithaca's namesake feature: waterfall-lined gorges, some a five-minute walk from downtown, others a short drive." },
+  parks:   { label:"Parks & Outdoors",     emoji:"🌳", sub:"Lakefront parks, gardens, and trails for walking, biking, and letting kids run." },
+  museums: { label:"Museums & Culture",    emoji:"🏛️", sub:"Hands-on science, natural history, art, and local history — most of them free." },
+  food:    { label:"Food & Bakeries",      emoji:"🥐", sub:"Where locals actually eat, from a 90-year-old ice cream maker to the farmers market." },
+  drink:   { label:"Breweries & Wineries", emoji:"🍷", sub:"Local taprooms and the country's oldest organized wine trail, all within a short drive." },
+  water:   { label:"On the Water",         emoji:"🚣", sub:"Cayuga Lake activities — paddling, fishing, sailing, and swimming." },
+  events:  { label:"Festivals & Events",   emoji:"🎪", sub:"Ithaca's calendar of music, food, and street festivals — mostly seasonal, mostly free." },
+  seasonal:{ label:"Seasonal & Winter",    emoji:"❄️", sub:"Snow-day and foliage-season activities that only make sense at certain times of year." },
+};
+const CAT_ORDER = ["gorges","parks","museums","food","drink","water","events","seasonal"];
+
+const weatherCompat = {
+  any:   ['any','dry','warm','cold','snow','clear'],
+  warm:  ['any','dry','warm','clear'],
+  clear: ['any','dry','clear'],
+  dry:   ['any','dry'],
+  cold:  ['any','cold','dry'],
+  snow:  ['any','snow','cold'],
+  rain:  ['any'],
+};
+
+const state = {
+  minutes: 60,
+  weather: 'any',
+  month: new Date().getMonth() + 1,
+  car: true,
+  indoorOnly: false,
+  kids: false,
+};
+
+/* ================= WEATHER + SEASON THEME ENGINE ================= */
+const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const PALETTES = {
+  // triggered directly by a chosen/detected weather condition
+  warm:  { paper:'#F7EFDA', paperDim:'#EFE2BE', line:'#DCC896', cardBg:'#FDF8EA', ink:'#2A2013', inkSoft:'#6E5A34', teal:'#C1701F', tealDeep:'#8C4E12', moss:'#7C8C3F', amber:'#D98A2E', water:'#3E86A0' },
+  clear: { paper:'#EFF3EC', paperDim:'#E3E9DE', line:'#C9D2C0', cardBg:'#F9FBF6', ink:'#1D2B22', inkSoft:'#55604F', teal:'#2A7A6E', tealDeep:'#175C51', moss:'#6B8A4E', amber:'#C08A2E', water:'#3E86A0' },
+  dry:   { paper:'#EAE7DC', paperDim:'#DEDACB', line:'#C5BEA8', cardBg:'#F4F1E7', ink:'#20241E', inkSoft:'#585C4E', teal:'#3C6E5E', tealDeep:'#284C41', moss:'#6C7A4E', amber:'#B27E36', water:'#3B7186' },
+  cold:  { paper:'#EAEEEA', paperDim:'#DEE4DE', line:'#C3CCC2', cardBg:'#F6F8F5', ink:'#202B24', inkSoft:'#57635A', teal:'#2F6E62', tealDeep:'#1E4F46', moss:'#63795A', amber:'#B4894A', water:'#3C7A93' },
+  rain:  { paper:'#DEE2E1', paperDim:'#D1D5D4', line:'#B4BAB9', cardBg:'#E8EAE9', ink:'#232A2B', inkSoft:'#59616F', teal:'#48666B', tealDeep:'#31474C', moss:'#697468', amber:'#8C7A5E', water:'#4A6C7D' },
+  snow:  { paper:'#E9EEF1', paperDim:'#DCE4E8', line:'#BFCCD3', cardBg:'#F5F9FB', ink:'#1E2A30', inkSoft:'#54626B', teal:'#2E6478', tealDeep:'#1E4655', moss:'#5C7A87', amber:'#B08A4E', water:'#3E7A94' },
+  // used as the baseline when weather is "not sure" — driven by time of year instead
+  spring:{ paper:'#EEF1E7', paperDim:'#E2E7D6', line:'#C6D0B4', cardBg:'#F8FAF3', ink:'#20281B', inkSoft:'#59634C', teal:'#3C7A56', tealDeep:'#265539', moss:'#7A9450', amber:'#C97C93', water:'#3E86A0' },
+  summer:{ paper:'#F2EED9', paperDim:'#E9E1BE', line:'#D6C68F', cardBg:'#FBF7E9', ink:'#26200F', inkSoft:'#665A34', teal:'#1F6E5E', tealDeep:'#144E42', moss:'#6E8A3E', amber:'#D98A2E', water:'#2E86A6' },
+  fall:  { paper:'#EFE7D8', paperDim:'#E6D5B7', line:'#D0AF7C', cardBg:'#F9F1E1', ink:'#2A1D10', inkSoft:'#6B4E2C', teal:'#8A4B22', tealDeep:'#63340F', moss:'#8C6A2E', amber:'#C1541F', water:'#4A7A87' },
+  winter:{ paper:'#E7ECEF', paperDim:'#D9E1E5', line:'#BCCAD1', cardBg:'#F3F8FA', ink:'#1C2A31', inkSoft:'#52626B', teal:'#33677A', tealDeep:'#20495A', moss:'#5E7683', amber:'#A98A57', water:'#3A7994' },
+};
+
+function seasonFor(month){
+  if ([3,4,5].includes(month)) return 'spring';
+  if ([6,7,8].includes(month)) return 'summer';
+  if ([9,10,11].includes(month)) return 'fall';
+  return 'winter';
+}
+
+const WEATHER_PARTICLES = { warm:'glow', clear:'none', dry:'none', cold:'none', rain:'rain', snow:'snow' };
+const SEASON_PARTICLES  = { spring:'petals', summer:'glow', fall:'leaves', winter:'snow' };
+const WEATHER_LABEL = { warm:'warm & sunny', clear:'clear & mild', dry:'cool & dry', cold:'cold & dry', rain:'rainy', snow:'snowy' };
+
+function applyTheme(){
+  const season = seasonFor(state.month);
+  const usingWeather = state.weather !== 'any';
+  const palette = PALETTES[usingWeather ? state.weather : season];
+  const particleType = usingWeather ? WEATHER_PARTICLES[state.weather] : SEASON_PARTICLES[season];
+
+  const root = document.documentElement;
+  Object.entries(palette).forEach(([key, val]) => root.style.setProperty(`--${key}`, val));
+
+  document.body.classList.remove('mood-foggy','mood-glow');
+  if (particleType === 'rain') document.body.classList.add('mood-foggy');
+  if (particleType === 'glow') document.body.classList.add('mood-glow');
+
+  renderParticles(particleType);
+
+  const note = document.getElementById('weatherAutoNote');
+  if (note) {
+    note.textContent = usingWeather
+      ? ''
+      : `Styled for ${season} in Ithaca — pick a weather above to override.`;
+  }
+}
+
+function renderParticles(type){
+  const layer = document.getElementById('particleLayer');
+  layer.innerHTML = '';
+  if (prefersReducedMotion || type === 'none' || type === 'glow') return;
+
+  const configs = {
+    snow:   { cls:'p-snow',  count:36, char:null, minDur:9,  maxDur:16, size:[3,7] },
+    rain:   { cls:'p-rain',  count:60, char:null, minDur:0.7,maxDur:1.3, size:[10,22] },
+    leaves: { cls:'p-leaf',  count:16, char:['🍂','🍁','🍃'], minDur:10, maxDur:18 },
+    petals: { cls:'p-petal', count:16, char:['🌸','🌼','🌷'], minDur:11, maxDur:19 },
+  };
+  const cfg = configs[type];
+  if (!cfg) return;
+
+  for (let i = 0; i < cfg.count; i++){
+    const el = document.createElement('span');
+    el.className = 'p-piece ' + cfg.cls;
+    const left = Math.random() * 100;
+    const dur = cfg.minDur + Math.random() * (cfg.maxDur - cfg.minDur);
+    const delay = Math.random() * dur;
+    const drift = (Math.random() * 120 - 60) + 'px';
+    const spin = Math.round(Math.random() * 360) + 'deg';
+    el.style.left = left + '%';
+    el.style.animationDuration = dur + 's';
+    el.style.animationDelay = '-' + delay + 's';
+    el.style.setProperty('--drift', drift);
+    el.style.setProperty('--spin', spin);
+    if (cfg.char){
+      el.textContent = cfg.char[Math.floor(Math.random() * cfg.char.length)];
+    } else if (type === 'snow'){
+      const s = cfg.size[0] + Math.random() * (cfg.size[1]-cfg.size[0]);
+      el.style.width = s + 'px'; el.style.height = s + 'px';
+    } else if (type === 'rain'){
+      const h = cfg.size[0] + Math.random() * (cfg.size[1]-cfg.size[0]);
+      el.style.height = h + 'px';
+    }
+    layer.appendChild(el);
+  }
+}
+
+function weatherCodeToCategory(code, tempF){
+  if ([51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99,45,48].includes(code)) return 'rain';
+  if ([71,73,75,77,85,86].includes(code)) return 'snow';
+  if (tempF >= 68) return 'warm';
+  if (tempF <= 34) return 'cold';
+  if ([0,1].includes(code)) return 'clear';
+  return 'dry';
+}
+
+async function autoDetectWeather(){
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=42.4440&longitude=-76.5019&current=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=America%2FNew_York';
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const data = await res.json();
+    const code = data?.current?.weather_code;
+    const temp = data?.current?.temperature_2m;
+    if (code === undefined || temp === undefined) return;
+    const cat = weatherCodeToCategory(code, temp);
+    state.weather = cat;
+    document.querySelectorAll('#weatherSeg button').forEach(b => {
+      b.classList.toggle('active', b.dataset.val === cat);
+    });
+    if (cat === 'rain') {
+      state.indoorOnly = true;
+      const indoorYes = document.querySelector('#indoorSeg button[data-val="true"]');
+      if (indoorYes) {
+        document.querySelectorAll('#indoorSeg button').forEach(b => b.classList.remove('active'));
+        indoorYes.classList.add('active');
+      }
+    }
+    const note = document.getElementById('weatherAutoNote');
+    if (note) note.textContent = `Auto-detected: ${WEATHER_LABEL[cat]} in Ithaca right now.`;
+    applyTheme();
+    renderRecommender();
+  } catch (e) {
+    // network unavailable or blocked — fall back to season-only styling, no error shown to the user
+  }
+}
+
+const STORAGE_KEY = 'ithaca-right-now-been-there';
+let beenSet = new Set();
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) beenSet = new Set(JSON.parse(raw));
+} catch(e) {}
+function saveBeen(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...beenSet])); } catch(e) {}
+}
+
+function formatMinutes(m){
+  if (m >= 480) return '8 hrs+';
+  if (m >= 60) {
+    const h = Math.floor(m/60), rem = m%60;
+    return rem ? `${h}h ${rem}m` : `${h} hr${h>1?'s':''}`;
+  }
+  return `${m} min`;
+}
+
+const minutesRange = document.getElementById('minutesRange');
+const minutesDisplay = document.getElementById('minutesDisplay');
+minutesRange.addEventListener('input', () => {
+  state.minutes = +minutesRange.value;
+  minutesDisplay.textContent = formatMinutes(state.minutes);
+  renderRecommender();
+});
+
+function wireSeg(id, key, coerce){
+  document.getElementById(id).querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(id).querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state[key] = coerce ? coerce(btn.dataset.val) : btn.dataset.val;
+      applyTheme();
+      renderRecommender();
+    });
+  });
+}
+wireSeg('weatherSeg', 'weather', null);
+wireSeg('carSeg', 'car', v => v === 'true');
+wireSeg('indoorSeg', 'indoorOnly', v => v === 'true');
+
+const monthSelect = document.getElementById('monthSelect');
+monthSelect.value = String(state.month);
+monthSelect.addEventListener('change', () => {
+  state.month = +monthSelect.value;
+  applyTheme();
+  renderRecommender();
+});
+
+document.getElementById('kidToggle').addEventListener('change', (e) => {
+  state.kids = e.target.checked;
+  renderRecommender();
+});
+
+let lastPick = null;
+document.getElementById('rerollBtn').addEventListener('click', () => {
+  showPick(getMatches());
+});
+
+function itemMatches(item){
+  if (item.m > state.minutes) return false;
+  if (item.car && !state.car) return false;
+  if (state.indoorOnly && !item.i) return false;
+  if (item.mo && !item.mo.includes(state.month)) return false;
+  if (state.kids && !item.k) return false;
+  const compat = weatherCompat[state.weather] || ['any'];
+  if (!compat.includes(item.w)) return false;
+  return true;
+}
+
+function getMatches(){
+  const out = [];
+  items.forEach((it, idx) => { if (itemMatches(it)) out.push(idx); });
+  out.sort((a,b) => items[a].m - items[b].m || Math.random() - 0.5);
+  return out;
+}
+
+function showPick(matches){
+  const pickCat = document.getElementById('pickCat');
+  const pickName = document.getElementById('pickName');
+  const pickDesc = document.getElementById('pickDesc');
+  if (matches.length === 0){
+    pickCat.textContent = '—';
+    pickName.textContent = "Nothing fits those exact conditions right now.";
+    pickDesc.textContent = 'Try more time, "not sure" for weather, or turning off "indoors only."';
+    lastPick = null;
+    return;
+  }
+  const pool = matches.filter(i => i !== lastPick);
+  const choice = (pool.length ? pool : matches)[Math.floor(Math.random() * (pool.length ? pool.length : matches.length))];
+  lastPick = choice;
+  const it = items[choice];
+  pickCat.textContent = `${CATS[it.cat].emoji} ${CATS[it.cat].label} · about ${formatMinutes(it.m)} · ${it.cost}`;
+  pickName.textContent = it.n;
+  pickDesc.textContent = it.d;
+}
+
+function renderRecommender(){
+  const matches = getMatches();
+  showPick(matches);
+
+  const resultList = document.getElementById('resultList');
+  const resultCount = document.getElementById('resultCount');
+  const resultEmpty = document.getElementById('resultEmpty');
+  resultList.innerHTML = '';
+
+  resultCount.textContent = matches.length
+    ? `${matches.length} more thing${matches.length===1?'':'s'} that fit${matches.length===1?'s':''}:`
+    : '';
+  resultEmpty.style.display = matches.length ? 'none' : 'block';
+
+  matches.forEach(idx => {
+    const it = items[idx];
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span>${CATS[it.cat].emoji}</span>
+      <span class="rname">${it.n}</span>
+      <span class="rmeta">~${formatMinutes(it.m)} · ${it.cost}</span>
+    `;
+    resultList.appendChild(li);
+  });
+}
+
+/* ---------- STATIC CATEGORY GUIDE (crawlable) ---------- */
+function buildGuide(){
+  const container = document.getElementById('categoryContainer');
+  CAT_ORDER.forEach(catKey => {
+    const meta = CATS[catKey];
+    const catItems = items.filter(it => it.cat === catKey);
+    if (!catItems.length) return;
+
+    const section = document.createElement('section');
+    section.className = 'category-section';
+    section.innerHTML = `
+      <h3 class="category-title"><span class="emoji">${meta.emoji}</span> ${meta.label}</h3>
+      <p class="category-sub">${meta.sub}</p>
+      <div class="card-grid"></div>
+    `;
+    const grid = section.querySelector('.card-grid');
+    catItems.forEach(it => {
+      const card = document.createElement('div');
+      card.className = 'place-card';
+      card.innerHTML = `
+        <div class="place-name">${it.n}</div>
+        <div class="place-desc">${it.d}</div>
+        <div class="place-tags">
+          <span class="tag">~${formatMinutes(it.m)}</span>
+          <span class="tag">${it.i ? 'Indoor' : 'Outdoor'}</span>
+          <span class="tag">${it.car ? 'Car helpful' : 'Walkable'}</span>
+          <span class="tag cost">${it.cost}</span>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+    container.appendChild(section);
+
+    // sprinkle one in-content ad after the 3rd category
+    if (catKey === 'museums') {
+      const ad = document.createElement('div');
+      ad.className = 'ad-slot';
+      ad.innerHTML = '<div class="ad-box in-content">Ad space — in-content unit</div>';
+      container.appendChild(ad);
+    }
+  });
+}
+
+(function init(){
+  minutesDisplay.textContent = formatMinutes(state.minutes);
+  buildGuide();
+  applyTheme();
+  renderRecommender();
+  autoDetectWeather();
+})();
+
+</script>
+</body>
+</html>
