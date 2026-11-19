@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sean Ji | Portfolio</title>
+<meta name="description" content="Sean Ji is a first-year MBA student at Cornell Johnson who builds data-driven passion projects: Dolly, Bored in Ithaca, Golf Simulator, Yardages, SwingLab and T-UP.">
+<meta name="theme-color" content="#FAFAF8">
+<meta property="og:title" content="Sean Ji | Portfolio">
+<meta property="og:description" content="Data-driven passion projects by Sean Ji.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#FAFAF8;
+  --ink:#111111;
+  --muted:#555555;
+  --body:#333333;
+  --navy:#1B3A6B;
+  --display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --text:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--text);font-size:16px;line-height:1.55;
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));
+}
+.page{
+  max-width:1240px;margin:0 auto;
+  padding-block:28px 64px;
+  display:flex;flex-direction:column;gap:56px;
+}
+@media (min-width:700px){body{padding-inline:clamp(16px,4vw,56px)}}
+a{color:var(--ink);text-underline-offset:3px}
+a:hover{color:var(--navy)}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+
+.top{
+  display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;
+  gap:8px 24px;font-size:15px;font-weight:500;
+}
+.top nav{display:flex;flex-wrap:wrap;gap:8px 24px}
+
+h1{
+  margin:0;font-family:var(--display);font-weight:900;text-transform:uppercase;
+  font-size:clamp(56px,12vw,168px);line-height:.9;letter-spacing:-.01em;text-wrap:balance;
+}
+h1 span{color:var(--navy)}
+
+.projects{display:flex;flex-direction:column}
+.project{border-top:3px solid var(--ink)}
+.project:last-child{border-bottom:3px solid var(--ink)}
+.project summary{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:8px 24px;padding:20px 0;cursor:pointer;list-style:none;
+}
+.project summary::-webkit-details-marker{display:none}
+.name{
+  font-family:var(--display);font-weight:900;text-transform:uppercase;
+  font-size:clamp(44px,8vw,104px);line-height:.95;
+}
+.project[open] .name{color:var(--navy)}
+.meta{display:flex;align-items:center;gap:20px;font-size:15px;font-weight:500;color:var(--muted)}
+.mark{font-family:var(--display);font-weight:900;font-size:44px;line-height:1;width:28px;text-align:center;color:var(--ink)}
+.mark::before{content:"+"}
+.project[open] .mark::before{content:"\2212"}
+
+.body{display:flex;flex-wrap:wrap;gap:24px 56px;padding:4px 0 40px}
+.body > div{flex:1 1 320px;min-width:0}
+.lead{margin:0 0 18px;font-size:22px;font-weight:500;max-width:560px}
+.stack{display:block;margin-bottom:18px;font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--navy)}
+.link{font-size:15px}
+.link a{font-weight:600}
+.note{color:var(--muted)}
+.features{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;color:var(--body)}
+
+.about{
+  display:flex;flex-wrap:wrap;gap:32px 56px;
+  padding-top:8px;
+}
+.about h2{
+  flex:1 1 220px;max-width:340px;margin:0;
+  font-family:var(--display);font-weight:900;text-transform:uppercase;
+  font-size:clamp(44px,6vw,80px);line-height:.95;
+}
+.about .copy{flex:3 1 420px;min-width:0;display:flex;flex-direction:column;gap:18px;max-width:720px}
+.about p{margin:0;font-size:19px;color:var(--body)}
+.contact{display:flex;flex-wrap:wrap;gap:8px 28px;font-size:16px;font-weight:600}
+footer{font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <span>Sean Ji</span>
+  <nav aria-label="Links">
+    <a href="https://github.com/seanji0">GitHub</a>
+    <a href="https://www.linkedin.com/in/sean-ji/">LinkedIn</a>
+    <a href="mailto:sj952@cornell.edu">Email</a>
+  </nav>
+</header>
+
+<main style="display:contents">
+<h1>I build <span>data-driven</span> passion projects.</h1>
+
+<section class="projects" aria-label="Projects">
+
+<details class="project" name="projects" open>
+<summary><span class="name">Dolly</span><span class="meta"><span>Concept and live demo</span><span class="mark" aria-hidden="true"></span></span></summary>
+<div class="body">
+<div>
+<p class="lead">An AI assistant concept for a bank&rsquo;s deposit customers. It answers rate and direct deposit questions from approved sources, hands off to a person when it should, and books branch visits with a banker already briefed.</p>
+<span class="stack">HTML / CSS / JavaScript</span>
+<div class="link note">Illustrative demo with placeholder data, not real bank data.</div>
+</div>
+<div>
+<ul class="features">
+<li>Customer chat: answers from an approved rate sheet and shows its source.</li>
+<li>Safeguards: disputes and hardship signals go straight to a person, with no sales offers.</li>
+<li>Banker brief: a one-screen summary, shared only with the customer&rsquo;s consent.</li>
+<li>Risk view: every check logged in an audit trail.</li>
+<li>Analytics: themes and the funnel from question to branch visit to switch.</li>
+<li>Rate sandbox: compares a rate change with targeted offers, using placeholder numbers.</li>
+</ul>
+</div>
+</div>
+</details>
+
+<details class="project" name="projects">
+<summary><span class="name">Bored in Ithaca</span><span class="meta"><span>Web app</span><span class="mark" aria-hidden="true"></span></span></summary>
+<div class="body">
+<div>
+<p class="lead">A weather- and season-aware guide to things to do in Ithaca, NY. Set your free time, the weather, the time of year and whether you have a car, and it suggests something that fits.</p>
+<span class="stack">HTML / CSS / JavaScript / Open-Meteo API</span>
+<div class="link"><a href="https://github.com/seanji0/bored-in-ithaca">View the code on GitHub</a></div>
+</div>
+<div>
+<ul class="features">
+<li>44 activities across gorges, food, parks, museums, water, drinks, events and seasonal picks.</li>
+<li>Live weather from Open-Meteo re-themes the page for fog and rain, snow or sun.</li>
+<li>Seasonal looks: blossoms, summer glow, falling leaves and snow.</li>
+<li>Falls back to season-only styling if the weather call fails.</li>
+<li>Independent of Cornell, Ithaca College and the City of Ithaca.</li>
+</ul>
+</div>
+</div>
+</details>
+
+<details class="project" name="projects">
+<summary><span class="name">Golf Simulator</span><span class="meta"><span>Browser game</span><span class="mark" aria-hidden="true"></span></span></summary>
+<div class="body">
+<div>
+<p class="lead">A golf simulator in a single file. Enter your handicap and club distances, then play a par-4 by choosing lines, clubs, chips and putt reads. Every shot comes from a dispersion model of your own game.</p>
+<span class="stack">HTML / CSS / JavaScript</span>
+<div class="link"><a href="https://github.com/seanji0/think-like-a-caddie">View the code on GitHub</a></div>
+</div>
+<div>
+<ul class="features">
+<li>Setup: handicap, go-to miss, putting touch and a club picker with your carry distances.</li>
+<li>Shot model: spread and distance variance scale with handicap and lie. Water adds a penalty.</li>
+<li>Aiming: click a target line and see live distances.</li>
+<li>Short game: chip type depends on the lie.</li>
+<li>Putting: color-coded arrows show break and speed.</li>
+<li>Animated ball flight, undo, and mid-round club edits.</li>
+</ul>
+</div>
+</div>
+</details>
+
+<details class="project" name="projects">
+<summary><span class="name">Yardages</span><span class="meta"><span>Browser tool</span><span class="mark" aria-hidden="true"></span></span></summary>
+<div class="body">
+<div>
+<p class="lead">Upload a swing video, step through it frame by frame, and pull a clean still for every position from address to finish.</p>
+<span class="stack">HTML / CSS / JavaScript</span>
+<div class="link"><a href="https://github.com/seanji0/swing-card">View the code on GitHub</a></div>
+</div>
+<div>
+<ul class="features">
+<li>Frame stepping: arrow keys move one frame, shift moves five, space plays.</li>
+<li>Eight positions: capture a still into each card.</li>
+<li>Swing plane view layers your captured frames together.</li>
+<li>Download each still or the full swing card.</li>
+<li>Private by design: video is processed in your browser and never uploaded.</li>
+</ul>
+</div>
+</div>
+</details>
+
+<details class="project" name="projects">
+<summary><span class="name">SwingLab</span><span class="meta"><span>Installable web app</span><span class="mark" aria-hidden="true"></span></span></summary>
+<div class="body">
+<div>
+<p class="lead">A practice journal for golfers. Log every session, track real carry distances, and let an analysis engine surface patterns for you or your coach to interpret.</p>
+<span class="stack">Next.js 14 / TypeScript / Tailwind CSS / PWA</span>
+<div class="link note">Private repository.</div>
+</div>
+<div>
+<ul class="features">
+<li>Practice journal: range, round, lesson, mental and fitness sessions.</li>
+<li>Yardage benchmarks: carry numbers tracked against skill levels.</li>
+<li>Feels vs real: what a swing felt like next to what the data says.</li>
+<li>Course strategy: plan each hole and decide where to miss.</li>
+<li>AI caddie: patterns across your data, with a coach confirming each reading.</li>
+<li>Bottleneck analysis: ranks speed, strike, launch, spin and path by potential gain.</li>
+</ul>
+</div>
+</div>
+</details>
+
+<details class="project" name="projects">
+<summary><span class="name">T-UP</span><span class="meta"><span>Web app</span><span class="mark" aria-hidden="true"></span></span></summary>
+<div class="body">
+<div>
+<p class="lead">Like Partiful, but for golf. Create a round, send one link and see who is in.</p>
+<span class="stack">React 19 / Vite / React Router</span>
+<div class="link"><a href="https://github.com/seanji0/gowf">View the code on GitHub</a></div>
+</div>
+<div>
+<ul class="features">
+<li>Create a round: course, tee time, format and price.</li>
+<li>Share one link: guests RSVP going, maybe or can&rsquo;t go.</li>
+<li>Guest list and comments on each round&rsquo;s page.</li>
+<li>Settle up: a pay-before-you-play flow. Payments are simulated in this build.</li>
+</ul>
+</div>
+</div>
+</details>
+
+</section>
+
+<section class="about" id="about" aria-labelledby="about-h">
+<h2 id="about-h">About</h2>
+<div class="copy">
+<p>Hi! I&rsquo;m Sean, a first-year MBA student at Cornell Johnson Graduate School of Management.</p>
+<p>Before business school, I started my career as a Project Manager at my family&rsquo;s business, where we run a manufacturing company and several real estate ventures. I then spent time in sales at a few startups, and was recently part of the founding team at Arrow, a Series A healthcare startup building AI agents for providers.</p>
+<p>Outside of work, I love playing Riot games, golf and guitar. I live in Ithaca with my partner and our cat and dog.</p>
+<div class="contact">
+<a href="mailto:sj952@cornell.edu">sj952@cornell.edu</a>
+<a href="https://www.linkedin.com/in/sean-ji/">LinkedIn</a>
+<a href="https://github.com/seanji0">GitHub</a>
+</div>
+</div>
+</section>
+</main>
+
+<footer>&copy; 2026 Sean Ji</footer>
+
+</div>
+</body>
+</html>
